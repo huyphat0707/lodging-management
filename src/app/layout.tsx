@@ -15,8 +15,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HypStay",
-  description: "Property management frontend dashboard",
+  title: "HypStay - Quản lý Cư trú & Cộng đồng",
+  description: "Giải pháp quản lý nhà trọ, homestay, khách sạn và chung cư chuyên nghiệp.",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
