@@ -73,8 +73,13 @@ export function LandingPageContent() {
       {/* Navigation */}
       <header className="px-4 lg:px-6 h-20 flex items-center border-b sticky top-0 bg-white/80 backdrop-blur-md z-50">
         <Link className="flex items-center justify-center" href="/">
-          <div className="bg-blue-600 p-2 rounded-lg mr-2 shadow-lg shadow-blue-200">
-            <Building2 className="h-6 w-6 text-white" />
+          <div className="relative h-10 w-10 mr-2 overflow-hidden rounded-lg shadow-sm">
+            <Image
+              src="/icon.png"
+              alt="HypStay Logo"
+              fill
+              className="object-contain"
+            />
           </div>
           <span className="text-2xl font-bold tracking-tighter text-slate-900">HypStay</span>
         </Link>
@@ -291,8 +296,13 @@ export function LandingPageContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             <div className="space-y-6">
               <div className="flex items-center">
-                <div className="bg-blue-600 p-2 rounded-xl mr-3 shadow-lg shadow-blue-100">
-                  <Building2 className="h-6 w-6 text-white" />
+                <div className="relative h-10 w-10 mr-3 overflow-hidden rounded-xl shadow-sm">
+                  <Image
+                    src="/icon.png"
+                    alt="HypStay Logo"
+                    fill
+                    className="object-contain"
+                  />
                 </div>
                 <span className="text-2xl font-bold tracking-tighter text-slate-900">HypStay</span>
               </div>

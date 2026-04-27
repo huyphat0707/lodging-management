@@ -35,6 +35,8 @@ const allSidebarLinks = [
 
 import { DonateDialog } from "../shared/DonateDialog";
 
+import Image from "next/image";
+
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
   const { t } = useI18n();
@@ -46,8 +48,16 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <aside className="h-full w-64 border-r border-white/10 bg-[#0F172A] text-zinc-100 flex flex-col">
-      <div className="flex h-16 items-center border-b border-white/10 px-6 shrink-0">
-        <span className="text-lg font-bold tracking-tight">HypStay</span>
+      <div className="flex h-16 items-center border-b border-white/10 px-6 shrink-0 gap-3">
+        <div className="relative h-8 w-8 overflow-hidden rounded-md">
+          <Image
+            src="/icon.png"
+            alt="HypStay Logo"
+            fill
+            className="object-contain"
+          />
+        </div>
+        <span className="text-xl font-bold tracking-tight">HypStay</span>
       </div>
       <PropertySelector />
       <div className="flex-1 overflow-y-auto">
