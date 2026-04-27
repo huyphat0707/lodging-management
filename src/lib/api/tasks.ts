@@ -13,9 +13,9 @@ export interface CreateTaskDto {
 }
 
 export const tasksApi = {
-  getTasks: async (propertyId?: string): Promise<OperationalTask[]> => {
+  getTasks: async (propertyId?: string): Promise<{ data: OperationalTask[]; total: number }> => {
     const url = propertyId ? `/tasks?propertyId=${propertyId}` : "/tasks";
-    return api.get<OperationalTask[]>(url);
+    return api.get<{ data: OperationalTask[]; total: number }>(url);
   },
 
   getTaskById: async (id: string): Promise<OperationalTask> => {

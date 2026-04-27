@@ -15,10 +15,12 @@ import { useI18n } from "@/components/providers/LanguageProvider";
 
 export function ContractTable() {
   const { t } = useI18n();
-  const { data: contracts = [], isLoading, isError } = useQuery({
+  const { data: contractsResponse, isLoading, isError } = useQuery({
     queryKey: ["contracts"],
-    queryFn: api.getContracts,
+    queryFn: () => api.getContracts(),
   });
+
+  const contracts = contractsResponse?.data || [];
 
   if (isLoading) {
     return <div className="rounded-md border bg-card p-4 text-sm text-muted-foreground">{t("contracts.loading")}</div>;

@@ -11,9 +11,9 @@ export interface CreateServiceDto {
 }
 
 export const servicesApi = {
-  getServices: async (propertyId?: string): Promise<Service[]> => {
+  getServices: async (propertyId?: string): Promise<{ data: Service[]; total: number }> => {
     const url = propertyId ? `/services?propertyId=${propertyId}` : "/services";
-    return api.get<Service[]>(url);
+    return api.get<{ data: Service[]; total: number }>(url);
   },
 
   getServiceById: async (id: string): Promise<Service> => {

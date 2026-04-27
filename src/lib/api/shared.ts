@@ -12,6 +12,15 @@ const normalizePath = (path: string) => (path.startsWith("/") ? path : `/${path}
 const stripTrailingSlash = (value: string) => value.replace(/\/+$/, "");
 const stripLeadingAndTrailingSlash = (value: string) => value.replace(/^\/+|\/+$/g, "");
 
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export function getEndpointPath(envVar: string, defaultPath: string): string {
+  if (typeof window !== "undefined") {
+    return (process.env[envVar] as string) || defaultPath;
+  }
+  return defaultPath;
+}
+
 export interface ApiResponse<T = any> {
   statusCode: number;
   message: string;
@@ -61,6 +70,10 @@ export async function request<T>(
 
   // Return data directly if it follows our backend structure
   return result.data;
+}
+
+export async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
+  return request<T>(path, options);
 }
 
 // Helper methods

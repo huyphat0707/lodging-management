@@ -45,10 +45,12 @@ export function PropertyTable() {
   const [editing, setEditing] = useState<Property | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: properties = [], isLoading, isError } = useQuery({
+  const { data: propertiesResponse, isLoading, isError } = useQuery({
     queryKey: ["properties", selectedPropertyType],
     queryFn: () => api.getPropertiesByType(selectedPropertyType),
   });
+
+  const properties = propertiesResponse?.data || [];
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => propertiesApi.deleteProperty(id),

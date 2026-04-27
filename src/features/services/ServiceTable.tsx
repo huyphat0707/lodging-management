@@ -15,10 +15,12 @@ import { useI18n } from "@/components/providers/LanguageProvider";
 
 export function ServiceTable() {
   const { t } = useI18n();
-  const { data: services = [], isLoading, isError } = useQuery({
+  const { data: servicesResponse, isLoading, isError } = useQuery({
     queryKey: ["services"],
-    queryFn: api.getServices,
+    queryFn: () => api.getServices(),
   });
+
+  const services = servicesResponse?.data || [];
 
   if (isLoading) {
     return <div className="rounded-md border bg-card p-4 text-sm text-muted-foreground">{t("services.loading")}</div>;

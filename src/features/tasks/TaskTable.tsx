@@ -49,10 +49,12 @@ function priorityLabel(priority: string, t: (k: string) => string) {
 export function TaskTable() {
   const { t } = useI18n();
 
-  const { data: tasks = [], isLoading, isError } = useQuery({
+  const { data: tasksResponse, isLoading, isError } = useQuery({
     queryKey: ["tasks"],
-    queryFn: api.getTasks,
+    queryFn: () => api.getTasks(),
   });
+
+  const tasks = tasksResponse?.data || [];
 
   if (isLoading) {
     return (

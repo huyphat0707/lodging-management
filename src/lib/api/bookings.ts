@@ -12,9 +12,9 @@ export interface CreateBookingDto {
 }
 
 export const bookingsApi = {
-  getBookings: async (propertyId?: string): Promise<Booking[]> => {
+  getBookings: async (propertyId?: string): Promise<{ data: Booking[]; total: number }> => {
     const url = propertyId ? `/bookings?propertyId=${propertyId}` : "/bookings";
-    return api.get<Booking[]>(url);
+    return api.get<{ data: Booking[]; total: number }>(url);
   },
 
   getBookingById: async (id: string): Promise<Booking> => {

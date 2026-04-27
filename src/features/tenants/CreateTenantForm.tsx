@@ -38,10 +38,11 @@ export function CreateTenantForm() {
     },
   });
 
-  const { data: properties = [] } = useQuery({
+  const { data: propertiesResponse } = useQuery({
     queryKey: ["properties"],
     queryFn: () => propertiesApi.getProperties(),
   });
+  const properties = propertiesResponse?.data || [];
 
   const mutation = useMutation({
     mutationFn: (data: TenantFormValues) => tenantsApi.createTenant(data),

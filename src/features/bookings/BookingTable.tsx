@@ -42,10 +42,12 @@ function bookingStatusLabel(status: BookingStatus, t: (k: string) => string) {
 export function BookingTable() {
   const { t } = useI18n();
 
-  const { data: bookings = [], isLoading, isError } = useQuery({
+  const { data: bookingsResponse, isLoading, isError } = useQuery({
     queryKey: ["bookings"],
-    queryFn: api.getBookings,
+    queryFn: () => api.getBookings(),
   });
+
+  const bookings = bookingsResponse?.data || [];
 
   if (isLoading) {
     return (

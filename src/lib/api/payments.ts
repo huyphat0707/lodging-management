@@ -12,9 +12,9 @@ export interface CreatePaymentDto {
 }
 
 export const paymentsApi = {
-  getPayments: async (invoiceId?: string): Promise<Payment[]> => {
+  getPayments: async (invoiceId?: string): Promise<{ data: Payment[]; total: number }> => {
     const url = invoiceId ? `/payments?invoiceId=${invoiceId}` : "/payments";
-    return api.get<Payment[]>(url);
+    return api.get<{ data: Payment[]; total: number }>(url);
   },
 
   getPaymentById: async (id: string): Promise<Payment> => {

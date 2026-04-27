@@ -15,10 +15,12 @@ import { useI18n } from "@/components/providers/LanguageProvider";
 
 export function PaymentHistoryTable() {
   const { t } = useI18n();
-  const { data: payments = [], isLoading, isError } = useQuery({
+  const { data: paymentsResponse, isLoading, isError } = useQuery({
     queryKey: ["payments"],
-    queryFn: api.getPayments,
+    queryFn: () => api.getPayments(),
   });
+
+  const payments = paymentsResponse?.data || [];
 
   if (isLoading) {
     return <div className="rounded-md border bg-card p-4 text-sm text-muted-foreground">{t("billing.loading")}</div>;

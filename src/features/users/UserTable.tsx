@@ -15,10 +15,12 @@ import { useI18n } from "@/components/providers/LanguageProvider";
 
 export function UserTable() {
   const { t } = useI18n();
-  const { data: users = [], isLoading, isError } = useQuery({
+  const { data: usersResponse, isLoading, isError } = useQuery({
     queryKey: ["users"],
-    queryFn: api.getUsers,
+    queryFn: () => api.getUsers(),
   });
+
+  const users = usersResponse?.data || [];
 
   if (isLoading) {
     return <div className="rounded-md border bg-card p-4 text-sm text-muted-foreground">{t("users.loading")}</div>;
