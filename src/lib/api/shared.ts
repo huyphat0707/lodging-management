@@ -28,22 +28,38 @@ export interface ApiResponse<T = any> {
   total?: number;
 }
 
+// Helper to convert snake_case to camelCase
+function snakeToCamel(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(v => snakeToCamel(v));
+  } else if (obj !== null && obj !== undefined && obj.constructor === Object) {
+    return Object.keys(obj).reduce(
+      (result, key) => ({
+        ...result,
+        [key.replace(/(_\w)/g, m => m[1].toUpperCase())]: snakeToCamel(obj[key]),
+      }),
+      {}
+    );
+  }
+  return obj;
+}
+
 export async function request<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const language =
     typeof window !== "undefined" &&
-    (localStorage.getItem(LANGUAGE_STORAGE_KEY) === "vi" || localStorage.getItem(LANGUAGE_STORAGE_KEY) === "en")
+      (localStorage.getItem(LANGUAGE_STORAGE_KEY) === "vi" || localStorage.getItem(LANGUAGE_STORAGE_KEY) === "en")
       ? (localStorage.getItem(LANGUAGE_STORAGE_KEY) as "en" | "vi")
       : "vi";
 
   const token = typeof window !== "undefined" ? localStorage.getItem(AUTH_TOKEN_KEY) : null;
-  
+
   const endpoint = normalizePath(path);
   const base = stripTrailingSlash(API_BASE_URL);
   const versionPrefix = stripLeadingAndTrailingSlash(API_PREFIX);
-  const url = `${base}/${versionPrefix}/${language}${endpoint}`;
+  const url = `${base}/${versionPrefix}${endpoint}`;
 
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
@@ -58,6 +74,10 @@ export async function request<T>(
     headers,
   });
 
+  if (res.status === 204) {
+    return null as any;
+  }
+
   const result: ApiResponse<T> = await res.json();
 
   if (!res.ok) {
@@ -68,8 +88,14 @@ export async function request<T>(
     throw new Error(errorMessage);
   }
 
-  // Return data directly if it follows our backend structure
-  return result.data;
+  const camelData = snakeToCamel(result.data);
+  const camelMeta = snakeToCamel((result as any).meta);
+
+  if (camelMeta) {
+    return { data: camelData, meta: camelMeta } as any;
+  }
+
+  return camelData;
 }
 
 export async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
@@ -79,9 +105,9 @@ export async function fetchJson<T>(path: string, options?: RequestInit): Promise
 // Helper methods
 export const api = {
   get: <T>(path: string, options?: RequestInit) => request<T>(path, { ...options, method: "GET" }),
-  post: <T>(path: string, body: any, options?: RequestInit) => 
+  post: <T>(path: string, body: any, options?: RequestInit) =>
     request<T>(path, { ...options, method: "POST", body: JSON.stringify(body) }),
-  patch: <T>(path: string, body: any, options?: RequestInit) => 
+  patch: <T>(path: string, body: any, options?: RequestInit) =>
     request<T>(path, { ...options, method: "PATCH", body: JSON.stringify(body) }),
   delete: <T>(path: string, options?: RequestInit) => request<T>(path, { ...options, method: "DELETE" }),
 };

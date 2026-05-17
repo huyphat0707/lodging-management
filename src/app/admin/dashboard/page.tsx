@@ -33,37 +33,37 @@ export default function DashboardPage() {
       <AppLayout>
         <div className="flex-1 space-y-6">
           <div className="flex items-center justify-between space-y-2">
-            <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+            <h2 className="text-3xl font-bold tracking-tight">{t("dashboard.title")}</h2>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <StatsCard
-              title="Total Revenue"
-              value={`$${stats?.revenue?.total?.toLocaleString() || "0"}`}
+              title={t("dashboard.totalRevenue")}
+              value={`$${stats?.revenue?.total?.toLocaleString('en-US') || "0"}`}
               icon={DollarSign}
               trend={{ value: 12.5, isPositive: true }}
-              description="from last month"
+              description={t("dashboard.fromLastMonth")}
             />
             <StatsCard
-              title="Occupied Rooms"
+              title={t("dashboard.occupiedRooms")}
               value={stats?.rooms?.occupied?.toString() || "0"}
               icon={Home}
               trend={{ value: 8.2, isPositive: true }}
-              description={`Total: ${stats?.rooms?.total || 0}`}
+              description={t("dashboard.totalRooms").replace("{count}", (stats?.rooms?.total || 0).toString())}
             />
             <StatsCard
-              title="Active Tenants"
+              title={t("dashboard.activeTenants")}
               value={stats?.tenants?.active?.toString() || "0"}
               icon={Users}
               trend={{ value: 5.4, isPositive: true }}
-              description="Active leases"
+              description={t("dashboard.activeLeases")}
             />
             <StatsCard
-              title="Pending Tasks"
+              title={t("dashboard.pendingTasks")}
               value={stats?.tasks?.pending?.toString() || "0"}
               icon={Activity}
               trend={{ value: 2, isPositive: false }}
-              description="Requires attention"
+              description={t("dashboard.requiresAttention")}
             />
           </div>
 
@@ -106,7 +106,7 @@ export default function DashboardPage() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground">No recent activity.</p>
+                    <p className="text-sm text-muted-foreground">{t("dashboard.noActivity")}</p>
                   )}
                 </div>
               </CardContent>

@@ -14,7 +14,7 @@ import { api } from "@/lib/api";
 import { tenantsApi } from "@/lib/api/tenants";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,12 +32,15 @@ export function TenantTable() {
   const { t } = useI18n();
   const [tenantToDelete, setTenantToDelete] = useState<{ id: string; name: string } | null>(null);
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const { data: tenantsResponse, isLoading, isError } = useQuery({
-    queryKey: ["tenants"],
-    queryFn: () => tenantsApi.getTenants(),
+    queryKey: ["tenants", page, limit],
+    queryFn: () => tenantsApi.getTenants({ page, limit }),
   });
   const tenants = tenantsResponse?.data || [];
+  const meta = (tenantsResponse as any)?.meta || { current_page: 1, total_pages: 1 };
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => tenantsApi.deleteTenant(id),
@@ -62,11 +65,11 @@ export function TenantTable() {
   };
 
   if (isLoading) {
-    return <div className="rounded-md border bg-card p-4 text-sm text-muted-foreground">Loading tenants...</div>;
+    return <div className="rounded-md border bg-card p-4 text-sm text-muted-foreground">{t("tenants.loading")}</div>;
   }
 
   if (isError) {
-    return <div className="rounded-md border bg-card p-4 text-sm text-red-600">Failed to load tenants.</div>;
+    return <div className="rounded-md border bg-card p-4 text-sm text-red-600">{t("tenants.error")}</div>;
   }
 
   return (
@@ -86,7 +89,7 @@ export function TenantTable() {
           {tenants.map((tenant: any) => (
             <TableRow key={tenant.id}>
               <TableCell className="font-medium">{tenant.name}</TableCell>
-              <TableCell>{tenant.room}</TableCell>
+              <TableCell>{tenant.room?.roomNumber || "-"}</TableCell>
               <TableCell>{tenant.phone}</TableCell>
               <TableCell>{tenant.moveInDate}</TableCell>
               <TableCell>
@@ -99,7 +102,11 @@ export function TenantTable() {
                         : "outline"
                   }
                 >
-                  {tenant.status}
+                  {tenant.status === "Active"
+                    ? t("tenants.statusActive")
+                    : tenant.status === "Pending"
+                      ? t("tenants.statusPending")
+                      : t("tenants.statusInactive")}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">
@@ -128,6 +135,31 @@ export function TenantTable() {
           ))}
         </TableBody>
       </Table>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-end space-x-2 p-4 pt-0">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          {t("app.previous") || "Trước"}
+        </Button>
+        <div className="text-sm text-muted-foreground mx-2">
+          {t("app.page") || "Trang"} {meta.current_page} / {meta.total_pages || 1}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page >= (meta.total_pages || 1)}
+        >
+          {t("app.next") || "Sau"}
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </div>
       <ConfirmDeleteDialog
         open={!!tenantToDelete}
         onOpenChange={(open) => !open && setTenantToDelete(null)}

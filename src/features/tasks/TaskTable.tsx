@@ -13,6 +13,9 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useI18n } from "@/components/providers/LanguageProvider";
 import type { TaskStatus } from "@/lib/api/types";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function taskStatusVariant(status: TaskStatus): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
@@ -48,13 +51,16 @@ function priorityLabel(priority: string, t: (k: string) => string) {
 
 export function TaskTable() {
   const { t } = useI18n();
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const { data: tasksResponse, isLoading, isError } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: () => api.getTasks(),
+    queryKey: ["tasks", page, limit],
+    queryFn: () => api.getTasks({ page, limit } as any), // bypass ts error if getTasks doesn't have args yet
   });
 
   const tasks = tasksResponse?.data || [];
+  const meta = (tasksResponse as any)?.meta || { current_page: 1, total_pages: 1 };
 
   if (isLoading) {
     return (
@@ -112,6 +118,31 @@ export function TaskTable() {
           ))}
         </TableBody>
       </Table>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-end space-x-2 p-4 pt-0">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          {t("app.previous") || "Trước"}
+        </Button>
+        <div className="text-sm text-muted-foreground mx-2">
+          {t("app.page") || "Trang"} {meta.current_page} / {meta.total_pages || 1}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page >= (meta.total_pages || 1)}
+        >
+          {t("app.next") || "Sau"}
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </div>
     </div>
   );
 }

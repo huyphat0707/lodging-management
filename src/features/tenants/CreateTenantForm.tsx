@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { tenantsApi } from "@/lib/api/tenants";
+import { roomsApi } from "@/lib/api/rooms";
 import { propertiesApi } from "@/lib/api/properties";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -22,6 +23,7 @@ export function CreateTenantForm() {
     phone: z.string().min(10, t("validation.minLength", { min: 10 })),
     email: z.string().email(t("validation.email")).optional().or(z.literal("")),
     propertyId: z.string().min(1, t("validation.selectProperty")),
+    roomId: z.string().min(1, t("validation.required")),
     status: z.enum(["Active", "Pending", "Inactive"]),
   });
 
@@ -34,6 +36,7 @@ export function CreateTenantForm() {
       phone: "",
       email: "",
       propertyId: "",
+      roomId: "",
       status: "Active",
     },
   });
@@ -43,6 +46,14 @@ export function CreateTenantForm() {
     queryFn: () => propertiesApi.getProperties(),
   });
   const properties = propertiesResponse?.data || [];
+  const selectedPropertyId = form.watch("propertyId");
+
+  const { data: roomsResponse } = useQuery({
+    queryKey: ["rooms", selectedPropertyId],
+    queryFn: () => roomsApi.getRooms({ propertyId: selectedPropertyId, status: "Available" }),
+    enabled: !!selectedPropertyId,
+  });
+  const rooms = (roomsResponse as any)?.data || [];
 
   const mutation = useMutation({
     mutationFn: (data: TenantFormValues) => tenantsApi.createTenant(data),
@@ -75,7 +86,7 @@ export function CreateTenantForm() {
           <Input 
             id="name" 
             {...form.register("name")} 
-            placeholder="e.g. Nguyen Van A" 
+            placeholder={t("tenants.namePlaceholder")} 
             className={form.formState.errors.name ? "border-red-500" : ""}
           />
         </div>
@@ -87,7 +98,7 @@ export function CreateTenantForm() {
           <Input 
             id="phone" 
             {...form.register("phone")} 
-            placeholder="+84..." 
+            placeholder={t("tenants.phonePlaceholder")} 
             className={form.formState.errors.phone ? "border-red-500" : ""}
           />
         </div>
@@ -96,7 +107,12 @@ export function CreateTenantForm() {
           <label htmlFor="email" className="text-sm font-medium">
             {t("tenants.email")}
           </label>
-          <Input id="email" {...form.register("email")} type="email" placeholder="tenant@email.com" />
+          <Input 
+            id="email" 
+            {...form.register("email")} 
+            type="email" 
+            placeholder={t("tenants.emailPlaceholder")} 
+          />
         </div>
 
         <div className="grid gap-2">
@@ -113,6 +129,26 @@ export function CreateTenantForm() {
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
+        </div>
+
+        <div className="grid gap-2">
+          <label htmlFor="roomId" className="text-sm font-medium">
+            {t("tenants.room") || "Room"}
+          </label>
+          <select
+            id="roomId"
+            className={selectFieldClass}
+            {...form.register("roomId")}
+            disabled={!selectedPropertyId}
+          >
+            <option value="">{t("tenants.roomPlaceholder") || "Select a room"}</option>
+            {rooms.map((r: any) => (
+              <option key={r.id} value={r.id}>{r.roomNumber}</option>
+            ))}
+          </select>
+          {form.formState.errors.roomId && (
+            <span className="text-xs text-red-500">{form.formState.errors.roomId.message}</span>
+          )}
         </div>
 
         <div className="md:col-span-2">

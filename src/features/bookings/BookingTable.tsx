@@ -13,6 +13,9 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useI18n } from "@/components/providers/LanguageProvider";
 import type { BookingStatus } from "@/lib/api/types";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 function bookingStatusVariant(status: BookingStatus): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
@@ -41,13 +44,16 @@ function bookingStatusLabel(status: BookingStatus, t: (k: string) => string) {
 
 export function BookingTable() {
   const { t } = useI18n();
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const { data: bookingsResponse, isLoading, isError } = useQuery({
-    queryKey: ["bookings"],
-    queryFn: () => api.getBookings(),
+    queryKey: ["bookings", page, limit],
+    queryFn: () => api.getBookings({ page, limit } as any),
   });
 
   const bookings = bookingsResponse?.data || [];
+  const meta = (bookingsResponse as any)?.meta || { current_page: 1, total_pages: 1 };
 
   if (isLoading) {
     return (
@@ -95,6 +101,31 @@ export function BookingTable() {
           ))}
         </TableBody>
       </Table>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-end space-x-2 p-4 pt-0">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          {t("app.previous") || "Trước"}
+        </Button>
+        <div className="text-sm text-muted-foreground mx-2">
+          {t("app.page") || "Trang"} {meta.current_page} / {meta.total_pages || 1}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page >= (meta.total_pages || 1)}
+        >
+          {t("app.next") || "Sau"}
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </div>
     </div>
   );
 }

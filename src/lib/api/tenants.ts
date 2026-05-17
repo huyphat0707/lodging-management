@@ -1,5 +1,5 @@
 import { api } from "./shared";
-import type { Tenant } from "./types";
+import type { Tenant, PaginatedResponse } from "./types";
 
 export interface CreateTenantDto {
   name: string;
@@ -15,7 +15,7 @@ export interface CreateTenantDto {
 }
 
 export const tenantsApi = {
-  getTenants: async (filters: any = {}): Promise<{ data: Tenant[]; total: number }> => {
+  getTenants: async (filters: any = {}): Promise<PaginatedResponse<Tenant>> => {
     let url = "/tenants";
     const params = new URLSearchParams();
     if (filters.propertyId) params.append("propertyId", filters.propertyId);
