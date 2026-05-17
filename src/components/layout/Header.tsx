@@ -84,11 +84,13 @@ export function Header({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
       {/* User Profile Dropdown */}
       {user && (
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all">
-              {(user.name[0] || user.email[0]).toUpperCase()}
-            </div>
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all">
+                {(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}
+              </div>
+            }
+          />
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuGroup>
               <DropdownMenuLabel className="flex flex-col space-y-1">

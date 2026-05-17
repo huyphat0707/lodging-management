@@ -6,10 +6,12 @@ import { Header } from "./Header";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAuth } from "../providers/AuthContext";
 import { useRouter } from "next/navigation";
+import { useI18n } from "@/components/providers/LanguageProvider";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent mx-auto" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t ? t("app.loading") : "Loading..."}</p>
         </div>
       </div>
     );

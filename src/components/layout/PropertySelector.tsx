@@ -2,12 +2,17 @@
 
 import { usePropertyContext } from "@/components/providers/PropertyContext";
 import { useI18n } from "@/components/providers/LanguageProvider";
+import { useAuth } from "@/components/providers/AuthContext";
 import { ChevronDown } from "lucide-react";
 
 export function PropertySelector() {
   const { selectedPropertyType, setSelectedPropertyType } =
     usePropertyContext();
+  const { user } = useAuth();
   const { t } = useI18n();
+  if (user?.role !== "super_admin") {
+    return null;
+  }
 
   const propertyTypes = [
     { value: "Boarding", label: t("properties.typeBoarding") },
