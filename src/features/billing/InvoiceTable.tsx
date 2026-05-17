@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,18 +10,24 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { billingApi } from "@/lib/api/billing";
 import { useI18n } from "@/components/providers/LanguageProvider";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export function InvoiceTable() {
   const { t } = useI18n();
+  const [page, setPage] = useState(1);
+  const limit = 10;
+
   const { data: invoicesResponse, isLoading, isError } = useQuery({
-    queryKey: ["invoices"],
-    queryFn: () => billingApi.getInvoices(),
+    queryKey: ["invoices", page, limit],
+    queryFn: () => billingApi.getInvoices({ page, limit }),
   });
-  
+
   const invoices = invoicesResponse?.data || [];
+  const meta = (invoicesResponse as any)?.meta || { current_page: 1, total_pages: 1 };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -38,53 +45,80 @@ export function InvoiceTable() {
   }
 
   return (
-    <div className="rounded-md border bg-card">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t("billing.invoiceNumber") || "Invoice No."}</TableHead>
-            <TableHead>{t("billing.tenant")}</TableHead>
-            <TableHead>{t("billing.room")}</TableHead>
-            <TableHead className="text-right">{t("billing.amount")}</TableHead>
-            <TableHead>{t("billing.dueDate")}</TableHead>
-            <TableHead>{t("billing.status")}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {invoices.length === 0 ? (
+    <div className="space-y-4">
+      <div className="rounded-md border bg-card">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={6} className="h-24 text-center">
-                No invoices found.
-              </TableCell>
+              <TableHead>{t("billing.invoiceNumber") || "Invoice No."}</TableHead>
+              <TableHead>{t("billing.tenant")}</TableHead>
+              <TableHead>{t("billing.room")}</TableHead>
+              <TableHead className="text-right">{t("billing.amount")}</TableHead>
+              <TableHead>{t("billing.dueDate")}</TableHead>
+              <TableHead>{t("billing.status")}</TableHead>
             </TableRow>
-          ) : (
-            invoices.map((invoice: any) => (
-              <TableRow key={invoice.id}>
-                <TableCell className="font-medium">{invoice.invoiceNumber || invoice.id.substring(0, 8)}</TableCell>
-                <TableCell>{invoice.tenantName}</TableCell>
-                <TableCell>{invoice.roomNumber}</TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatCurrency(invoice.totalAmount)}
-                </TableCell>
-                <TableCell>{new Date(invoice.dueDate).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      invoice.status === "Paid"
-                        ? "default"
-                        : invoice.status === "Unpaid" || invoice.status === "Pending"
-                          ? "secondary"
-                          : "outline"
-                    }
-                  >
-                    {t(`billing.status${invoice.status}`) || invoice.status}
-                  </Badge>
+          </TableHeader>
+          <TableBody>
+            {invoices.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  {t("billing.noInvoices")}
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              invoices.map((invoice: any) => (
+                <TableRow key={invoice.id}>
+                  <TableCell className="font-medium">{invoice.invoiceNumber || invoice.id.substring(0, 8)}</TableCell>
+                  <TableCell>{invoice.tenant?.name || invoice.tenantName || "-"}</TableCell>
+                  <TableCell>{invoice.room?.roomNumber || invoice.roomNumber || "-"}</TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(invoice.totalAmount)}
+                  </TableCell>
+                  <TableCell>{new Date(invoice.dueDate).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        invoice.status === "Paid"
+                          ? "default"
+                          : invoice.status === "Unpaid" || invoice.status === "Pending"
+                            ? "secondary"
+                            : "outline"
+                      }
+                    >
+                      {t(`billing.status${invoice.status}`) || invoice.status}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-end space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Trước
+        </Button>
+        <div className="text-sm text-muted-foreground mx-2">
+          Trang {meta.current_page} / {meta.total_pages || 1}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page >= (meta.total_pages || 1)}
+        >
+          Sau
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
+      </div>
     </div>
   );
 }

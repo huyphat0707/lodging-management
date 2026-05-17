@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { billingApi } from "@/lib/api/billing";
 import { useI18n } from "@/components/providers/LanguageProvider";
 import { MeterReadingDialog } from "./MeterReadingDialog";
-import { Activity, Eye, MoreHorizontal } from "lucide-react";
+import { Activity, Eye, MoreHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,12 +28,15 @@ export function InvoiceDetailTable() {
   const { t } = useI18n();
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [readingOpen, setReadingOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   const { data: invoicesData, isLoading, isError } = useQuery({
-    queryKey: ["invoices"],
-    queryFn: () => billingApi.getInvoices(),
+    queryKey: ["invoices", page, limit],
+    queryFn: () => billingApi.getInvoices({ page, limit }),
   });
   const invoices = invoicesData?.data || [];
+  const meta = (invoicesData as any)?.meta || { current_page: 1, total_pages: 1 };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -74,15 +77,15 @@ export function InvoiceDetailTable() {
             {invoices.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
-                  No invoices found.
+                  {t("billing.noInvoices")}
                 </TableCell>
               </TableRow>
             ) : (
               invoices.map((invoice: any) => (
                 <TableRow key={invoice.id}>
                   <TableCell className="font-medium">{invoice.invoiceNumber || invoice.id.substring(0, 8)}</TableCell>
-                  <TableCell>{invoice.roomNumber}</TableCell>
-                  <TableCell>{invoice.tenantName}</TableCell>
+                  <TableCell>{invoice.room.roomNumber}</TableCell>
+                  <TableCell>{invoice.tenant.name}</TableCell>
                   <TableCell className="text-right font-medium">
                     {formatCurrency(invoice.totalAmount)}
                   </TableCell>
@@ -126,6 +129,31 @@ export function InvoiceDetailTable() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="flex items-center justify-end space-x-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Trước
+        </Button>
+        <div className="text-sm text-muted-foreground mx-2">
+          Trang {meta.current_page} / {meta.total_pages || 1}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={page >= (meta.total_pages || 1)}
+        >
+          Sau
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
       </div>
 
       <MeterReadingDialog

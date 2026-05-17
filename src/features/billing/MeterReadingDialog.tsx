@@ -50,10 +50,10 @@ export function MeterReadingDialog({ invoice, open, onOpenChange }: MeterReading
   const form = useForm<ReadingFormValues>({
     resolver: zodResolver(readingSchema),
     defaultValues: {
-      elecOld: invoice?.electricityOldIndex || 0,
-      elecNew: invoice?.electricityNewIndex || 0,
-      waterOld: invoice?.waterOldIndex || 0,
-      waterNew: invoice?.waterNewIndex || 0,
+      elecOld: invoice?.electricityOldIndex ? Number(invoice.electricityOldIndex) : 0,
+      elecNew: invoice?.electricityNewIndex ? Number(invoice.electricityNewIndex) : 0,
+      waterOld: invoice?.waterOldIndex ? Number(invoice.waterOldIndex) : 0,
+      waterNew: invoice?.waterNewIndex ? Number(invoice.waterNewIndex) : 0,
     },
   });
 

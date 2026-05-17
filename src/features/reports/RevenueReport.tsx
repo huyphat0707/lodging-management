@@ -27,7 +27,7 @@ export function RevenueReport() {
             <div key={data.month} className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="font-medium">{data.month}</span>
-                <span className="text-muted-foreground">${data.revenue.toLocaleString()}</span>
+                <span className="text-muted-foreground">${data.revenue.toLocaleString('en-US')}</span>
               </div>
               <div className="flex gap-1 h-4">
                 <div
