@@ -1,5 +1,5 @@
 import { api } from "./shared";
-import type { Room } from "./types";
+import type { Room, PaginatedResponse } from "./types";
 
 export interface CreateRoomDto {
   roomNumber: string;
@@ -13,7 +13,7 @@ export interface CreateRoomDto {
 }
 
 export const roomsApi = {
-  getRooms: async (filters: any = {}): Promise<{ data: Room[]; total: number }> => {
+  getRooms: async (filters: any = {}): Promise<PaginatedResponse<Room>> => {
     let url = "/rooms";
     const params = new URLSearchParams();
     if (filters.propertyId) params.append("propertyId", filters.propertyId);

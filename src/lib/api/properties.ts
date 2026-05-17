@@ -1,5 +1,5 @@
 import { api } from "./shared";
-import type { Property, PropertyType } from "./types";
+import type { Property, PropertyType, PaginatedResponse } from "./types";
 
 export interface CreatePropertyDto {
   name: string;
@@ -11,7 +11,7 @@ export interface CreatePropertyDto {
 }
 
 export const propertiesApi = {
-  getProperties: async (filters: any = {}): Promise<{ data: Property[]; total: number }> => {
+  getProperties: async (filters: any = {}): Promise<PaginatedResponse<Property>> => {
     let url = "/properties";
     const params = new URLSearchParams();
     if (filters.type) params.append("type", filters.type);
@@ -24,7 +24,7 @@ export const propertiesApi = {
     return api.get(url);
   },
 
-  getPropertiesByType: async (type: PropertyType): Promise<{ data: Property[]; total: number }> => {
+  getPropertiesByType: async (type: PropertyType): Promise<PaginatedResponse<Property>> => {
     return propertiesApi.getProperties({ type });
   },
 

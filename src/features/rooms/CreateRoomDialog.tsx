@@ -14,7 +14,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Plus, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { Controller } from "react-hook-form";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { selectFieldClass } from "@/features/properties/property-form-styles";
 import { useForm } from "react-hook-form";
@@ -22,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { roomsApi } from "@/lib/api/rooms";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 export function CreateRoomDialog() {
   const { t } = useI18n();
@@ -78,7 +81,13 @@ export function CreateRoomDialog() {
   });
 
   const onSubmit = (data: RoomFormValues) => {
-    mutation.mutate(data);
+    const submitData = {
+      ...data,
+      price: Number(data.price),
+      electricityPrice: data.electricityPrice ? Number(data.electricityPrice) : undefined,
+      waterPrice: data.waterPrice ? Number(data.waterPrice) : undefined,
+    };
+    mutation.mutate(submitData as any);
   };
 
   return (
@@ -142,7 +151,22 @@ export function CreateRoomDialog() {
               <label htmlFor="price" className="text-sm font-medium">
                 {t("rooms.price")}
               </label>
-              <Input id="price" {...form.register("price")} placeholder="$500" />
+              <Controller
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="price"
+                    placeholder="e.g. 5.000.000"
+                    onChange={(e) => {
+                      const formatted = formatCurrencyInput(e.target.value);
+                      field.onChange(parseCurrencyInput(formatted));
+                    }}
+                    value={formatCurrencyInput(field.value ?? "")}
+                  />
+                )}
+              />
             </div>
             <div className="grid gap-2">
               <label htmlFor="status" className="text-sm font-medium">
@@ -164,20 +188,42 @@ export function CreateRoomDialog() {
                   <label htmlFor="electricity" className="text-sm font-medium">
                     {t("rooms.electricityPrice")}
                   </label>
-                  <Input
-                    id="electricity"
-                    {...form.register("electricityPrice")}
-                    placeholder={t("rooms.electricityPlaceholder")}
+                  <Controller
+                    control={form.control}
+                    name="electricityPrice"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="electricity"
+                        placeholder="e.g. 3.500"
+                        onChange={(e) => {
+                          const formatted = formatCurrencyInput(e.target.value);
+                          field.onChange(parseCurrencyInput(formatted));
+                        }}
+                        value={formatCurrencyInput(field.value ?? "")}
+                      />
+                    )}
                   />
                 </div>
                 <div className="grid gap-2">
                   <label htmlFor="water" className="text-sm font-medium">
                     {t("rooms.waterPrice")}
                   </label>
-                  <Input
-                    id="water"
-                    {...form.register("waterPrice")}
-                    placeholder={t("rooms.waterPlaceholder")}
+                  <Controller
+                    control={form.control}
+                    name="waterPrice"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="water"
+                        placeholder="e.g. 15.000"
+                        onChange={(e) => {
+                          const formatted = formatCurrencyInput(e.target.value);
+                          field.onChange(parseCurrencyInput(formatted));
+                        }}
+                        value={formatCurrencyInput(field.value ?? "")}
+                      />
+                    )}
                   />
                 </div>
               </>

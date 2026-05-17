@@ -22,6 +22,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { propertiesApi } from "@/lib/api/properties";
 import { toast } from "sonner";
 import { useState } from "react";
+import { Controller } from "react-hook-form";
+import { formatCurrencyInput, parseCurrencyInput } from "@/lib/utils";
 
 export function CreatePropertyDialog() {
   const { t } = useI18n();
@@ -70,7 +72,12 @@ export function CreatePropertyDialog() {
   });
 
   const onSubmit = (data: PropertyFormValues) => {
-    mutation.mutate(data);
+    const submitData = {
+      ...data,
+      electricityPrice: data.electricityPrice ? Number(data.electricityPrice) : undefined,
+      waterPrice: data.waterPrice ? Number(data.waterPrice) : undefined,
+    };
+    mutation.mutate(submitData as any);
   };
 
   return (
@@ -163,20 +170,42 @@ export function CreatePropertyDialog() {
                   <label htmlFor="electricity" className="text-sm font-medium">
                     {t("properties.electricityPrice")}
                   </label>
-                  <Input
-                    id="electricity"
-                    {...form.register("electricityPrice")}
-                    placeholder={t("properties.electricityPlaceholder")}
+                  <Controller
+                    control={form.control}
+                    name="electricityPrice"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="electricity"
+                        placeholder="e.g. 3.500"
+                        onChange={(e) => {
+                          const formatted = formatCurrencyInput(e.target.value);
+                          field.onChange(parseCurrencyInput(formatted));
+                        }}
+                        value={formatCurrencyInput(field.value ?? "")}
+                      />
+                    )}
                   />
                 </div>
                 <div className="grid gap-2">
                   <label htmlFor="water" className="text-sm font-medium">
                     {t("properties.waterPrice")}
                   </label>
-                  <Input
-                    id="water"
-                    {...form.register("waterPrice")}
-                    placeholder={t("properties.waterPlaceholder")}
+                  <Controller
+                    control={form.control}
+                    name="waterPrice"
+                    render={({ field }) => (
+                      <Input
+                        {...field}
+                        id="water"
+                        placeholder="e.g. 15.000"
+                        onChange={(e) => {
+                          const formatted = formatCurrencyInput(e.target.value);
+                          field.onChange(parseCurrencyInput(formatted));
+                        }}
+                        value={formatCurrencyInput(field.value ?? "")}
+                      />
+                    )}
                   />
                 </div>
               </>
