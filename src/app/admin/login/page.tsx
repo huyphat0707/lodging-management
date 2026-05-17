@@ -88,13 +88,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Demo Info */}
-          <div className="p-3 bg-blue-900/30 border border-blue-700/50 rounded-md text-sm text-blue-200">
-            <p className="font-medium">{t("auth.demo")}:</p>
-            <p>{t("auth.demoEmail")}: demo@example.com</p>
-            <p>{t("auth.demoPassword")}: demo123</p>
-          </div>
-
           {/* Register Link */}
           <div className="text-center text-sm">
             <span className="text-zinc-400">

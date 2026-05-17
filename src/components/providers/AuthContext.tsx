@@ -6,10 +6,10 @@ import { authApi } from "@/lib/api/auth";
 import { AUTH_TOKEN_KEY } from "@/lib/api/shared";
 
 type AuthContextType = {
-  user: (User & { organizationId: string }) | null;
+  user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string, role: string, propertyType: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 };
@@ -17,7 +17,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<(User & { organizationId: string }) | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Check if user is already logged in on mount
@@ -27,7 +27,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         try {
           const userData = await authApi.getMe();
-          setUser(userData);
+          // Normalize user data (backend uses snake_case, frontend uses camelCase)
+          const normalizedUser: User = {
+            id: userData.id,
+            email: userData.email,
+            phone: userData.phone,
+            name: userData.name || (userData as any).full_name || (userData as any).fullName || userData.email.split("@")[0],
+            roles: (userData as any).roles || [],
+            role: ((userData as any).roles?.[0] || (userData as any).role || "user").toLowerCase(),
+            organizationId: userData.organizationId || (userData as any).organization_id,
+            propertyType: (userData as any).property_type || (userData as any).propertyType,
+            status: userData.status,
+          };
+          setUser(normalizedUser);
         } catch (error) {
           console.error("Failed to load user:", error);
           localStorage.removeItem(AUTH_TOKEN_KEY);
@@ -43,10 +55,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const response = await authApi.login(email, password);
-      
+
       localStorage.setItem(AUTH_TOKEN_KEY, response.accessToken);
       localStorage.setItem("auth_refresh_token", response.refreshToken);
-      setUser(response.user);
+      
+      const userData = response.user;
+      const normalizedUser: User = {
+        id: userData.id,
+        email: userData.email,
+        phone: userData.phone,
+        name: userData.name || (userData as any).full_name || (userData as any).fullName || userData.email.split("@")[0],
+        roles: (userData as any).roles || [],
+        role: ((userData as any).roles?.[0] || (userData as any).role || "user").toLowerCase(),
+        organizationId: userData.organizationId || (userData as any).organization_id,
+        propertyType: (userData as any).property_type || (userData as any).propertyType,
+        status: userData.status,
+      };
+      setUser(normalizedUser);
     } catch (error: any) {
       throw new Error(error.message || "Login failed");
     } finally {
@@ -54,14 +79,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string, role: string, propertyType: string) => {
     setIsLoading(true);
     try {
-      const response = await authApi.register(email, password, name);
-      
+      const response = await authApi.register(email, password, name, role, propertyType);
+
       localStorage.setItem(AUTH_TOKEN_KEY, response.accessToken);
       localStorage.setItem("auth_refresh_token", response.refreshToken);
-      setUser(response.user);
+      
+      const userData = response.user;
+      const normalizedUser: User = {
+        id: userData.id,
+        email: userData.email,
+        phone: userData.phone,
+        name: userData.name || (userData as any).full_name || (userData as any).fullName || userData.email.split("@")[0],
+        roles: (userData as any).roles || [],
+        role: ((userData as any).roles?.[0] || (userData as any).role || "user").toLowerCase(),
+        organizationId: userData.organizationId || (userData as any).organization_id,
+        propertyType: (userData as any).property_type || (userData as any).propertyType,
+        status: userData.status,
+      };
+
+      setUser(normalizedUser);
     } catch (error: any) {
       throw new Error(error.message || "Registration failed");
     } finally {

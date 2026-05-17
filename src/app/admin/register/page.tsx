@@ -16,6 +16,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [propertyType, setPropertyType] = useState("Boarding");
+  const [role, setRole] = useState("user");
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +31,7 @@ export default function RegisterPage() {
     }
 
     try {
-      await register(email, password, name);
+      await register(email, password, name, role, propertyType);
       router.push("/admin/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
@@ -110,6 +112,42 @@ export default function RegisterPage() {
                 disabled={isLoading}
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
               />
+            </div>
+
+            {/* Property Type Selection */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-200">
+                {t("sidebar.propertyType")}
+              </label>
+              <select
+                value={propertyType}
+                onChange={(e) => setPropertyType(e.target.value)}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+              >
+                <option value="Boarding">Nhà trọ</option>
+                <option value="Hotel">Hotel</option>
+                <option value="Homestay">Homestay</option>
+              </select>
+            </div>
+
+            {/* Role Selection */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-zinc-200">
+                {t("auth.role")}
+              </label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full bg-zinc-800 border border-zinc-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+              >
+                <option value="user">{t("auth.roleUser")}</option>
+                <option value="admin">{t("auth.roleAdmin")}</option>
+                <option value="staff">{t("auth.roleStaff")}</option>
+                <option value="property_owner">{t("auth.roleOwner")}</option>
+                <option value="accountant">{t("auth.roleAccountant")}</option>
+              </select>
             </div>
 
             {/* Error Message */}

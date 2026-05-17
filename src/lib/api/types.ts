@@ -60,6 +60,16 @@ export type PropertyType = "Boarding" | "Hotel" | "Homestay";
 
 export type PropertyStatus = "Active" | "Inactive" | "Draft";
 
+export type PaginatedResponse<T> = {
+  data: T[];
+  meta: {
+    totalCount: number;
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+  };
+};
+
 export type Property = {
   id: string;
   name: string;
@@ -100,18 +110,19 @@ export type Booking = {
   amount: string;
 };
 
-export type UserRole = "Admin" | "Staff" | "PropertyOwner" | "Guest" | "Accountant";
+export type UserRole = "admin" | "staff" | "property_owner" | "guest" | "accountant" | "user" | "super_admin";
 export type UserStatus = "Active" | "Inactive";
 
 export type User = {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  avatar?: string;
-  role: UserRole;
-  status: UserStatus;
-  createdAt: string;
+  phone: string | null;
+  roles: string[];
+  role: string; // Normalized for easy use
+  organizationId: string;
+  propertyType: string;
+  status: string;
 };
 
 export type ContractStatus = "Draft" | "Active" | "Expired" | "Terminated";
@@ -119,13 +130,16 @@ export type ContractStatus = "Draft" | "Active" | "Expired" | "Terminated";
 export type Contract = {
   id: string;
   tenantId: string;
+  tenant?: Tenant;
   tenantName: string;
   roomId: string;
+  room?: Room;
   roomNumber: string;
   propertyId: string;
+  property?: Property;
   propertyName: string;
   startDate: string;
-  endDate: string;
+  endDate?: string;
   monthlyRate: string;
   depositAmount: string;
   status: ContractStatus;
@@ -187,4 +201,29 @@ export type DashboardStats = {
     completed: number;
   };
   recentActivity: ActivityItem[];
+};
+
+export type PostType = "Rental" | "Discussion" | "Finding";
+export type PostStatus = "Active" | "Draft" | "Closed";
+
+export type CommunityPost = {
+  id: string;
+  title: string;
+  content: string;
+  type: PostType;
+  images?: string[];
+  price?: number;
+  address?: string;
+  status: PostStatus;
+  authorId: string;
+  author?: {
+    fullName: string;
+    avatar?: string;
+  };
+  organizationId?: string;
+  organization?: {
+    name: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 };

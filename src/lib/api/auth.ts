@@ -12,14 +12,14 @@ export const authApi = {
     return api.post<LoginResponse>("/auth/login", { email, password });
   },
 
-  register: async (email: string, password: string, name: string): Promise<LoginResponse> => {
+  register: async (email: string, password: string, name: string, role: string, propertyType?: string): Promise<LoginResponse> => {
     return api.post<LoginResponse>("/auth/register", {
       email,
       password,
-      name,
-      // Defaulting role and status as backend handles them or requires them in DTO
-      role: "PropertyOwner",
-      status: "Active",
+      fullName: name,
+      propertyType,
+      role,
+      confirmPassword: password,
     });
   },
 
