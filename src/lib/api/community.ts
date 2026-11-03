@@ -1,5 +1,5 @@
 import { request } from "./shared";
-import { CommunityPost } from "./types";
+import { CommunityPost, CommunityComment } from "./types";
 
 export type CreatePostData = {
   title: string;
@@ -44,4 +44,28 @@ export const communityApi = {
     }),
 
   getMyPosts: () => request<CommunityPost[]>("/community/my-posts"),
+
+  // --- Like API ---
+  toggleLike: (id: string) =>
+    request<{ liked: boolean; count: number }>(`/community/posts/${id}/like`, {
+      method: "POST",
+    }),
+
+  getLikeStatus: (id: string) =>
+    request<{ liked: boolean; count: number }>(`/community/posts/${id}/like-status`),
+
+  // --- Comment API ---
+  getComments: (id: string) =>
+    request<CommunityComment[]>(`/community/posts/${id}/comments`),
+
+  createComment: (id: string, data: { content: string; parentId?: string }) =>
+    request<CommunityComment>(`/community/posts/${id}/comments`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  deleteComment: (id: string) =>
+    request<{ success: boolean }>(`/community/comments/${id}`, {
+      method: "DELETE",
+    }),
 };

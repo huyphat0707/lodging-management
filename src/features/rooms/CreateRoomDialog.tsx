@@ -23,6 +23,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { roomsApi } from "@/lib/api/rooms";
+import { tenantsApi } from "@/lib/api/tenants";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 
@@ -31,15 +32,45 @@ export function CreateRoomDialog() {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const roomSchema = z.object({
-    propertyId: z.string().min(1, t("validation.selectProperty")),
-    roomNumber: z.string().min(1, t("validation.required")),
-    type: z.string().min(1, t("validation.required")),
-    price: z.string().min(1, t("validation.required")),
-    status: z.enum(["Occupied", "Available", "Maintenance"]),
-    electricityPrice: z.string().optional(),
-    waterPrice: z.string().optional(),
-  });
+  const roomSchema = z
+    .object({
+      propertyId: z.string().min(1, t("validation.selectProperty")),
+      roomNumber: z.string().min(1, t("validation.required")),
+      type: z.string().min(1, t("validation.required")),
+      price: z.string().min(1, t("validation.required")),
+      status: z.enum(["Occupied", "Available", "Maintenance"]),
+      electricityPrice: z.string().optional(),
+      waterPrice: z.string().optional(),
+      tenantName: z.string().optional(),
+      tenantPhone: z.string().optional(),
+      tenantEmail: z.string().optional(),
+      moveInDate: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      if (data.status === "Occupied") {
+        if (!data.tenantName || data.tenantName.trim().length < 2) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.minLength", { min: 2 }),
+            path: ["tenantName"],
+          });
+        }
+        if (!data.tenantPhone || data.tenantPhone.trim().length < 10) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.minLength", { min: 10 }),
+            path: ["tenantPhone"],
+          });
+        }
+        if (data.tenantEmail && data.tenantEmail.trim() !== "" && !/\S+@\S+\.\S+/.test(data.tenantEmail)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("validation.email"),
+            path: ["tenantEmail"],
+          });
+        }
+      }
+    });
 
   type RoomFormValues = z.infer<typeof roomSchema>;
 
@@ -53,6 +84,10 @@ export function CreateRoomDialog() {
       status: "Available",
       electricityPrice: "",
       waterPrice: "",
+      tenantName: "",
+      tenantPhone: "",
+      tenantEmail: "",
+      moveInDate: "",
     },
   });
 
@@ -68,10 +103,42 @@ export function CreateRoomDialog() {
   const isBoarding = currentProperty?.type === "Boarding";
 
   const mutation = useMutation({
-    mutationFn: (data: RoomFormValues) => roomsApi.createRoom(data),
+    mutationFn: async (data: RoomFormValues) => {
+      // 1. Create Room
+      const room = await roomsApi.createRoom({
+        propertyId: data.propertyId,
+        roomNumber: data.roomNumber,
+        type: data.type,
+        price: data.price,
+        status: data.status,
+        electricityPrice: data.electricityPrice || undefined,
+        waterPrice: data.waterPrice || undefined,
+      } as any);
+
+      // 2. Create Tenant if room status is Occupied
+      if (data.status === "Occupied" && data.tenantName && data.tenantPhone) {
+        try {
+          await tenantsApi.createTenant({
+            name: data.tenantName,
+            phone: data.tenantPhone,
+            email: data.tenantEmail || undefined,
+            status: "Active",
+            moveInDate: data.moveInDate || undefined,
+            propertyId: data.propertyId,
+            roomId: room.id,
+          } as any);
+        } catch (tenantErr: any) {
+          throw new Error(
+            `Room created successfully, but tenant creation failed: ${tenantErr.message || tenantErr}`
+          );
+        }
+      }
+      return room;
+    },
     onSuccess: () => {
       toast.success(t("rooms.createSuccess") || "Room created successfully");
       queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
       setOpen(false);
       form.reset();
     },
@@ -90,6 +157,8 @@ export function CreateRoomDialog() {
     mutation.mutate(submitData as any);
   };
 
+  const selectedStatus = form.watch("status");
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
@@ -99,7 +168,7 @@ export function CreateRoomDialog() {
           </Button>
         }
       />
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>{t("rooms.addRoom")}</DialogTitle>
@@ -178,6 +247,78 @@ export function CreateRoomDialog() {
                 <option value="Maintenance">{t("rooms.statusMaintenance")}</option>
               </select>
             </div>
+
+            {selectedStatus === "Occupied" && (
+              <>
+                <div className="border-t border-zinc-700 pt-4 mt-2">
+                  <h3 className="text-sm font-medium mb-4">{t("tenants.createTenant")}</h3>
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="tenantName" className="text-sm font-medium">
+                    {t("tenants.fullName")} <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id="tenantName"
+                    {...form.register("tenantName")}
+                    placeholder={t("tenants.namePlaceholder")}
+                    className={form.formState.errors.tenantName ? "border-red-500" : ""}
+                  />
+                  {form.formState.errors.tenantName && (
+                    <span className="text-xs text-red-500">
+                      {form.formState.errors.tenantName.message}
+                    </span>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="tenantPhone" className="text-sm font-medium">
+                    {t("tenants.phone")} <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id="tenantPhone"
+                    {...form.register("tenantPhone")}
+                    placeholder={t("tenants.phonePlaceholder")}
+                    className={form.formState.errors.tenantPhone ? "border-red-500" : ""}
+                  />
+                  {form.formState.errors.tenantPhone && (
+                    <span className="text-xs text-red-500">
+                      {form.formState.errors.tenantPhone.message}
+                    </span>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="tenantEmail" className="text-sm font-medium">
+                    {t("tenants.email")}
+                  </label>
+                  <Input
+                    id="tenantEmail"
+                    type="email"
+                    {...form.register("tenantEmail")}
+                    placeholder={t("tenants.emailPlaceholder")}
+                    className={form.formState.errors.tenantEmail ? "border-red-500" : ""}
+                  />
+                  {form.formState.errors.tenantEmail && (
+                    <span className="text-xs text-red-500">
+                      {form.formState.errors.tenantEmail.message}
+                    </span>
+                  )}
+                </div>
+                <div className="grid gap-2">
+                  <label htmlFor="moveInDate" className="text-sm font-medium">
+                    {t("tenants.moveInDate")}
+                  </label>
+                  <Input
+                    id="moveInDate"
+                    type="date"
+                    {...form.register("moveInDate")}
+                  />
+                  {form.formState.errors.moveInDate && (
+                    <span className="text-xs text-red-500">
+                      {form.formState.errors.moveInDate.message}
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
 
             {isBoarding && (
               <>

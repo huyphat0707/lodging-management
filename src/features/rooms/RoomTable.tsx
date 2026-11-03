@@ -30,11 +30,15 @@ import { contractsApi } from "@/lib/api/contracts";
 import { toast } from "sonner";
 import { ConfirmDeleteDialog } from "@/components/shared/ConfirmDeleteDialog";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { EditRoomDialog } from "./EditRoomDialog";
+import { RoomDetailsDialog } from "./RoomDetailsDialog";
 
 export function RoomTable() {
   const { t } = useI18n();
   const [selectedProperty, setSelectedProperty] = useState<string>("");
   const [roomToDelete, setRoomToDelete] = useState<{ id: string; number: string } | null>(null);
+  const [roomToEdit, setRoomToEdit] = useState<any | null>(null);
+  const [roomToView, setRoomToView] = useState<any | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch properties for filter dropdown
@@ -195,8 +199,8 @@ export function RoomTable() {
                     <DropdownMenuContent align="end">
                       <DropdownMenuGroup>
                         <DropdownMenuLabel>{t("rooms.actions")}</DropdownMenuLabel>
-                        <DropdownMenuItem>{t("rooms.viewDetails")}</DropdownMenuItem>
-                        <DropdownMenuItem>{t("rooms.editRoom")}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setRoomToView(room)}>{t("rooms.viewDetails")}</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setRoomToEdit(room)}>{t("rooms.editRoom")}</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-red-600"
@@ -248,6 +252,18 @@ export function RoomTable() {
         title={t("rooms.confirmDeleteTitle")}
         description={`${t("rooms.confirmDeleteDescription")} (Phòng ${roomToDelete?.number})`}
         isLoading={deleteMutation.isPending}
+      />
+
+      <EditRoomDialog
+        room={roomToEdit}
+        open={!!roomToEdit}
+        onOpenChange={(open) => !open && setRoomToEdit(null)}
+      />
+
+      <RoomDetailsDialog
+        room={roomToView}
+        open={!!roomToView}
+        onOpenChange={(open) => !open && setRoomToView(null)}
       />
     </div>
   );

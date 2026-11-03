@@ -1,350 +1,404 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
-  CheckCircle2,
-  Building2,
-  FileText,
-  CreditCard,
-  BarChart3,
   ArrowRight,
-  ShieldCheck,
-  Zap,
-  Clock,
+  BarChart3,
+  ChevronDown,
+  FileText,
+  Headphones,
+  Home,
+  PlayCircle,
+  ReceiptText,
   Users,
+  Building,
+  Globe,
   LayoutDashboard,
-  Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DonateDialog } from "@/components/shared/DonateDialog";
 import { useI18n } from "@/components/providers/LanguageProvider";
+import { useAuth } from "@/components/providers/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { BrandLogo, DashboardMockup, PhoneMockup } from "./DashboardMockup";
+
+const primaryBtn =
+  "rounded-full bg-green-700 text-white shadow-lg shadow-green-700/20 hover:bg-green-800";
+const outlineBtn =
+  "rounded-full border-2 border-green-700 bg-white text-green-700 hover:bg-green-50 hover:text-green-800";
 
 export function LandingPageContent() {
   const { language, setLanguage, t } = useI18n();
+  const { isAuthenticated } = useAuth();
 
-  const features = [
-    {
-      title: t("landing.feature1Title"),
-      desc: t("landing.feature1Desc"),
-      icon: Users,
-      color: "bg-blue-100 text-blue-600"
-    },
-    {
-      title: t("landing.feature2Title"),
-      desc: t("landing.feature2Desc"),
-      icon: FileText,
-      color: "bg-purple-100 text-purple-600"
-    },
-    {
-      title: t("landing.feature3Title"),
-      desc: t("landing.feature3Desc"),
-      icon: CreditCard,
-      color: "bg-green-100 text-green-600"
-    },
-    {
-      title: t("landing.feature4Title"),
-      desc: t("landing.feature4Desc"),
-      icon: BarChart3,
-      color: "bg-orange-100 text-orange-600"
-    },
-    {
-      title: t("landing.feature5Title"),
-      desc: t("landing.feature5Desc"),
-      icon: LayoutDashboard,
-      color: "bg-indigo-100 text-indigo-600"
-    },
-    {
-      title: t("landing.feature6Title"),
-      desc: t("landing.feature6Desc"),
-      icon: ShieldCheck,
-      color: "bg-red-100 text-red-600"
-    }
+  const navLinks = [
+    { href: "#how-it-works", label: t("home.nav.howItWorks") },
+    { href: "#pricing", label: t("home.nav.pricing") },
+    { href: "#faq", label: t("home.nav.faq") },
   ];
 
+  const featureStrip = [
+    { icon: Home, label: t("home.strip.rooms") },
+    { icon: Users, label: t("home.strip.tenants") },
+    { icon: FileText, label: t("home.strip.contracts") },
+    { icon: ReceiptText, label: t("home.strip.invoices") },
+    { icon: BarChart3, label: t("home.strip.reports") },
+  ];
+
+  const values = [
+    { icon: Home, title: t("home.value.item1Title"), desc: t("home.value.item1Desc") },
+    { icon: Users, title: t("home.value.item2Title"), desc: t("home.value.item2Desc") },
+    { icon: ReceiptText, title: t("home.value.item3Title"), desc: t("home.value.item3Desc") },
+  ];
+
+  const steps = [
+    { icon: Home, title: t("home.steps.step1Title"), desc: t("home.steps.step1Desc") },
+    { icon: Users, title: t("home.steps.step2Title"), desc: t("home.steps.step2Desc") },
+    { icon: FileText, title: t("home.steps.step3Title"), desc: t("home.steps.step3Desc") },
+  ];
+
+  const faqs = [1, 2, 3].map((n) => ({ q: t(`home.faq.q${n}`), a: t(`home.faq.a${n}`) }));
+
   return (
-    <div className="flex flex-col min-h-screen bg-white" suppressHydrationWarning>
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-white text-slate-900" suppressHydrationWarning>
       {/* Navigation */}
-      <header className="px-4 lg:px-6 h-20 flex items-center border-b sticky top-0 bg-white/80 backdrop-blur-md z-50">
-        <Link className="flex items-center justify-center" href="/">
-          <div className="relative h-10 w-10 mr-2 overflow-hidden rounded-lg shadow-sm">
-            <Image
-              src="/icon.png"
-              alt="HypStay Logo"
-              fill
-              className="object-contain"
-            />
+      <header className="sticky top-0 z-50 border-b border-slate-100/70 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-8 px-4 sm:px-6 lg:h-20">
+          <Link href="/" aria-label="HypStay">
+            <BrandLogo className="text-xl" />
+          </Link>
+
+          <nav className="hidden items-center gap-7 text-sm font-medium text-slate-700 lg:flex">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                nativeButton
+                render={
+                  <button className="flex cursor-pointer items-center gap-1 border-none bg-transparent outline-none transition-colors hover:text-green-700">
+                    {t("home.nav.features")}
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                }
+              />
+              <DropdownMenuContent align="start">
+                {featureStrip.map((f) => (
+                  <DropdownMenuItem key={f.label} className="gap-2" onClick={() => (window.location.hash = "features")}>
+                    <f.icon className="h-4 w-4 text-green-700" />
+                    {f.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {navLinks.map((l) => (
+              <Link key={l.href} href={l.href} className="transition-colors hover:text-green-700">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                nativeButton
+                render={
+                  <button className="flex cursor-pointer items-center gap-1.5 rounded-full border-none bg-transparent px-2.5 py-2 text-sm font-medium outline-none transition-colors hover:bg-slate-100">
+                    <Globe className="h-4 w-4" />
+                    <span className="uppercase">{language}</span>
+                  </button>
+                }
+              />
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setLanguage("vi")} className="gap-2">
+                  <span className="text-lg">🇻🇳</span> Tiếng Việt
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage("en")} className="gap-2">
+                  <span className="text-lg">🇬🇧</span> English
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {isAuthenticated ? (
+              <Link href="/admin/dashboard">
+                <Button className={`${primaryBtn} h-10 gap-2 px-5`}>
+                  <LayoutDashboard className="h-4 w-4" />
+                  {t("home.nav.dashboard")}
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/admin/login" className="hidden sm:block">
+                  <Button variant="outline" className="h-10 rounded-full border-green-700/40 px-5 text-slate-800 hover:bg-green-50">
+                    {t("home.nav.login")}
+                  </Button>
+                </Link>
+                <Link href="/admin/register">
+                  <Button className={`${primaryBtn} h-10 gap-1.5 px-5`}>
+                    {t("home.nav.getStarted")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
-          <span className="text-2xl font-bold tracking-tighter text-slate-900">HypStay</span>
-        </Link>
-        <nav className="ml-auto flex gap-2 sm:gap-4 items-center">
-          <Link className="text-sm font-medium hover:text-blue-600 transition-colors hidden lg:block" href="#features">
-            {t("landing.viewFeatures")}
-          </Link>
-
-          {/* Language Switcher */}
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium hover:bg-slate-100 rounded-lg cursor-pointer transition-colors outline-none border-none bg-transparent">
-                  <Globe className="h-4 w-4" />
-                  <span className="uppercase">{language}</span>
-                </button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setLanguage("vi")} className="gap-2">
-                <span className="text-lg">🇻🇳</span> Tiếng Việt
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLanguage("en")} className="gap-2">
-                <span className="text-lg">🇬🇧</span> English
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DonateDialog />
-
-          <Link href="/admin/login">
-            <Button variant="ghost" className="text-slate-600 hidden sm:inline-flex">
-              {t("landing.login")}
-            </Button>
-          </Link>
-          <Link href="/admin/register">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-200 rounded-lg">
-              {t("landing.getStarted")}
-            </Button>
-          </Link>
-        </nav>
+        </div>
       </header>
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-blue-50 to-white overflow-hidden">
-          {/* Background decoration */}
-          <div className="absolute top-20 right-0 -translate-y-1/2 translate-x-1/4 w-[500px] h-[500px] bg-blue-100 rounded-full blur-3xl opacity-30 -z-10 animate-pulse"></div>
+        {/* Hero */}
+        <section className="relative overflow-hidden bg-gradient-to-b from-green-50/80 via-white to-white pb-24 pt-12 lg:pb-32 lg:pt-16">
+          <div className="pointer-events-none absolute -right-32 -top-24 h-[480px] w-[480px] rounded-full bg-green-200/40 blur-3xl" />
+          <div className="pointer-events-none absolute -left-40 bottom-0 h-[360px] w-[360px] rounded-full bg-emerald-100/60 blur-3xl" />
+          <svg className="pointer-events-none absolute inset-x-0 bottom-0 h-24 w-full text-green-50" viewBox="0 0 1440 96" preserveAspectRatio="none" aria-hidden>
+            <path fill="currentColor" d="M0 64 C240 16 480 96 720 56 C960 16 1200 80 1440 40 V96 H0 Z" />
+          </svg>
 
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="grid gap-6 lg:grid-cols-[1fr_500px] lg:gap-12 xl:grid-cols-[1fr_600px] items-center">
-              <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
-                <div className="inline-block rounded-full bg-blue-100 px-4 py-1.5 text-sm font-semibold text-blue-700 w-fit mx-auto lg:mx-0">
-                  {t("landing.noSetup")}
-                </div>
-                <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl xl:text-7xl/none text-slate-900">
-                  {t("landing.heroTitle")} <br />
-                  <span className="text-blue-600 drop-shadow-sm">{t("landing.heroSubtitle")}</span>
-                </h1>
-                <p className="max-w-[600px] text-slate-500 md:text-xl lg:text-2xl mx-auto lg:mx-0 leading-relaxed">
-                  {t("landing.heroDesc")}
-                </p>
-                <div className="flex flex-col gap-3 min-[400px]:flex-row justify-center lg:justify-start pt-4">
-                  <Link href="/admin/register">
-                    <Button size="lg" className="h-16 px-10 bg-blue-600 hover:bg-blue-700 text-white text-xl rounded-xl shadow-2xl shadow-blue-300 group">
-                      {t("landing.getStarted")}
-                      <ArrowRight className="ml-2 h-6 w-6 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </Link>
-                  <Link href="#features">
-                    <Button size="lg" variant="outline" className="h-16 px-10 text-xl rounded-xl border-slate-200 bg-white hover:bg-slate-50">
-                      {t("landing.viewFeatures")}
-                    </Button>
-                  </Link>
-                </div>
-                <div className="flex items-center justify-center lg:justify-start gap-6 text-sm font-medium text-slate-500 pt-6">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    {t("landing.freeTrial")}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    {t("landing.noSetup")}
-                  </div>
-                </div>
-              </div>
-              <div className="relative group perspective-1000">
-                <div className="absolute -inset-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100 transform transition-all duration-500 group-hover:scale-[1.02] group-hover:rotate-1">
-                  <Image
-                    src="/hero_property_management_1777278500733.png"
-                    width={800}
-                    height={800}
-                    alt="Dashboard Preview"
-                    className="object-cover w-full h-auto"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="w-full py-24 bg-white relative">
-          <div className="container px-4 md:px-6 mx-auto">
-            <div className="text-center space-y-4 mb-20">
-              <h2 className="text-3xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl text-slate-900">
-                {t("landing.featureTitle")}
-              </h2>
-              <p className="max-w-[800px] text-slate-500 md:text-xl lg:text-2xl mx-auto leading-relaxed">
-                {t("landing.featureSubtitle")}
+          <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1.05fr_1fr]">
+            <div className="text-center lg:text-left">
+              <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-[2.5rem] xl:text-[2.75rem]">
+                <span className="text-green-800">{t("home.hero.title1")}</span>
+                <br />
+                <span className="text-slate-900">{t("home.hero.title2")}</span>
+              </h1>
+              <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-slate-600 lg:mx-0">
+                {t("home.hero.desc")}
               </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {features.map((feature, idx) => (
-                <div key={idx} className="group p-10 rounded-3xl border border-slate-100 bg-slate-50/30 hover:bg-white hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-100/50 transition-all duration-500 transform hover:-translate-y-2">
-                  <div className={`w-16 h-16 rounded-2xl ${feature.color} flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
-                    <feature.icon className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">{feature.title}</h3>
-                  <p className="text-slate-500 leading-relaxed text-lg">{feature.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Social Proof Section */}
-        <section className="w-full py-24 bg-slate-950 text-white relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-            <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-blue-500 to-transparent"></div>
-            <div className="absolute top-0 left-2/4 w-px h-full bg-gradient-to-b from-transparent via-blue-500 to-transparent"></div>
-            <div className="absolute top-0 left-3/4 w-px h-full bg-gradient-to-b from-transparent via-blue-500 to-transparent"></div>
-          </div>
-
-          <div className="container px-4 md:px-6 mx-auto relative z-10">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div>
-                <h2 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl mb-8 leading-tight">
-                  {t("landing.socialProofTitle")}
-                </h2>
-                <div className="space-y-8">
-                  {[
-                    { title: t("landing.statRooms"), val: "20,000+", icon: Building2 },
-                    { title: t("landing.statOwners"), val: "5,000+", icon: Users },
-                    { title: t("landing.statSatisfaction"), val: "99.9%", icon: Zap }
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex gap-6 items-center p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
-                      <div className="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-900/20">
-                        <item.icon className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <div className="text-3xl font-bold text-white mb-1">{item.val}</div>
-                        <div className="text-slate-400 text-lg">{item.title}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-0 bg-blue-600/20 blur-[100px] rounded-full"></div>
-                <div className="grid grid-cols-2 gap-6 relative">
-                  {[
-                    { label: t("landing.statRooms"), val: "20k+" },
-                    { label: t("landing.statOwners"), val: "5k+" },
-                    { label: t("landing.statSatisfaction"), val: "99%" },
-                    { label: t("landing.statSupport"), val: "24/7" }
-                  ].map((stat, i) => (
-                    <div key={i} className="aspect-square flex flex-col items-center justify-center bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 p-6 text-center hover:scale-105 transition-transform duration-500">
-                      <div className="text-4xl md:text-5xl font-black text-blue-400 mb-3">{stat.val}</div>
-                      <div className="text-slate-300 font-medium">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="w-full py-24 bg-blue-600 relative overflow-hidden shadow-inner">
-          <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-[800px] h-[800px] bg-blue-400 rounded-full blur-[120px] opacity-40"></div>
-          <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-indigo-500 rounded-full blur-[120px] opacity-40"></div>
-
-          <div className="container px-4 md:px-6 mx-auto relative z-10 text-center">
-            <div className="max-w-4xl mx-auto space-y-8">
-              <h2 className="text-4xl font-extrabold tracking-tighter sm:text-6xl text-white">
-                {t("landing.ctaTitle")}
-              </h2>
-              <p className="text-blue-100 text-xl md:text-2xl opacity-90 leading-relaxed">
-                {t("landing.ctaDesc")}
-              </p>
-              <div className="flex flex-col gap-4 sm:flex-row justify-center pt-8">
+              <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
                 <Link href="/admin/register">
-                  <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-18 px-12 text-2xl rounded-2xl font-black shadow-2xl transition-all hover:scale-105 active:scale-95">
-                    {t("landing.getStarted")}
+                  <Button size="lg" className={`${primaryBtn} h-12 w-full gap-2 px-7 text-base sm:w-auto`}>
+                    {t("home.hero.ctaPrimary")}
+                    <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
-                <Link href="/admin/login">
-                  <Button size="lg" variant="outline" className="border-2 border-white text-blue-600 h-18 px-12 text-2xl rounded-2xl font-bold backdrop-blur-sm">
-                    {t("landing.login")}
+                <Link href="#features">
+                  <Button size="lg" variant="outline" className={`${outlineBtn} h-12 w-full gap-2 px-7 text-base sm:w-auto`}>
+                    <PlayCircle className="h-5 w-5" />
+                    {t("home.hero.ctaSecondary")}
                   </Button>
                 </Link>
               </div>
             </div>
+
+            <div className="relative">
+              <Building className="pointer-events-none absolute -right-10 -top-10 hidden h-64 w-64 text-green-100 xl:block" strokeWidth={1} />
+              <DashboardMockup className="relative text-[11px] sm:text-[15px] lg:text-[16px]" />
+            </div>
+          </div>
+        </section>
+
+        {/* Feature strip */}
+        <section id="features" className="relative z-10 -mt-14 scroll-mt-24 px-4 sm:px-6">
+          <div className="mx-auto grid max-w-6xl grid-cols-2 gap-y-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-xl shadow-slate-900/5 sm:grid-cols-3 lg:grid-cols-5 lg:divide-x lg:divide-slate-100 lg:p-5">
+            {featureStrip.map((f) => (
+              <div key={f.label} className="flex items-center justify-center gap-3 text-sm font-semibold text-slate-800">
+                <f.icon className="h-6 w-6 text-green-700" />
+                {f.label}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Value */}
+        <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("home.value.title")}</h2>
+            <p className="mt-3 text-slate-600">{t("home.value.subtitle")}</p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {values.map((v) => (
+              <div key={v.title} className="flex items-start gap-5 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-lg hover:shadow-green-900/5">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-green-50">
+                  <v.icon className="h-8 w-8 text-green-700" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">{v.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-slate-500">{v.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Operations overview */}
+        <section className="relative overflow-hidden bg-gradient-to-r from-white via-green-50/60 to-green-50 py-20">
+          <div className="mx-auto grid max-w-6xl items-center gap-14 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr]">
+            <div className="text-center lg:text-left">
+              <h2 className="text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{t("home.ops.title")}</h2>
+              <p className="mx-auto mt-5 max-w-md text-lg leading-relaxed text-slate-600 lg:mx-0">{t("home.ops.desc")}</p>
+              <Link href="/admin/register">
+                <Button size="lg" className={`${primaryBtn} mt-8 h-12 gap-2 px-7 text-base`}>
+                  {t("home.ops.cta")}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="relative flex items-end justify-center">
+              {/* Laptop */}
+              <div className="w-full max-w-xl">
+                <div className="rounded-t-2xl border-[10px] border-b-0 border-slate-800 bg-slate-800">
+                  <DashboardMockup className="rounded-lg text-[9px] shadow-none sm:text-[12px]" />
+                </div>
+                <div className="mx-auto h-3 w-[110%] -translate-x-[4.5%] rounded-b-2xl bg-gradient-to-b from-slate-300 to-slate-400" />
+              </div>
+              {/* Phone */}
+              <PhoneMockup className="absolute -bottom-6 left-0 w-[34%] -rotate-6 text-[8px] sm:text-[11px] lg:-left-10" />
+            </div>
+          </div>
+        </section>
+
+        {/* Steps */}
+        <section id="how-it-works" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-20 sm:px-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("home.steps.title")}</h2>
+            <p className="mt-3 text-slate-600">{t("home.steps.subtitle")}</p>
+          </div>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {steps.map((s, i) => (
+              <div key={s.title} className="flex flex-col items-center rounded-2xl border border-slate-100 bg-white p-6 text-center shadow-sm">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-green-700 text-xs font-bold text-white">
+                  {i + 1}
+                </span>
+                <div className="mt-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-50">
+                  <s.icon className="h-6 w-6 text-green-700" />
+                </div>
+                <h3 className="mt-3 font-semibold">{s.title}</h3>
+                <p className="mt-1 text-sm text-slate-500">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Choose */}
+        <section id="pricing" className="mx-auto max-w-6xl scroll-mt-24 px-4 pb-20 sm:px-6">
+          <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">{t("home.choose.title")}</h2>
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <ChoiceCard
+              icon={Home}
+              title={t("home.choose.exploreTitle")}
+              desc={t("home.choose.exploreDesc")}
+              cta={
+                <Link href="/admin/register">
+                  <Button className={`${primaryBtn} h-11 w-full gap-2`}>
+                    {t("home.choose.exploreCta")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              }
+            />
+            <ChoiceCard
+              icon={Headphones}
+              title={t("home.choose.contactTitle")}
+              desc={t("home.choose.contactDesc")}
+              cta={
+                <Link href="/community">
+                  <Button variant="outline" className={`${outlineBtn} h-11 w-full gap-2`}>
+                    {t("home.choose.contactCta")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              }
+            />
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section id="faq" className="mx-auto grid max-w-6xl scroll-mt-24 gap-8 px-4 pb-20 sm:px-6 lg:grid-cols-[0.6fr_1.4fr]">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">{t("home.faq.title")}</h2>
+            <p className="mt-3 max-w-xs text-slate-500">{t("home.faq.desc")}</p>
+          </div>
+          <div className="space-y-3">
+            {faqs.map((f) => (
+              <details key={f.q} className="group rounded-xl border border-slate-200 bg-white px-5 py-4 open:shadow-sm">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+                  {f.q}
+                  <ChevronDown className="h-4 w-4 shrink-0 text-slate-500 transition-transform group-open:rotate-180" />
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* CTA banner */}
+        <section className="px-4 pb-16 sm:px-6">
+          <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-3xl bg-gradient-to-r from-green-800 via-green-700 to-green-600 px-8 py-10 text-center sm:flex-row sm:justify-between sm:text-left lg:px-24">
+            <Home className="pointer-events-none absolute -bottom-8 right-6 h-40 w-40 text-white/10" strokeWidth={1.5} />
+            <div className="relative">
+              <h2 className="text-2xl font-bold text-white sm:text-3xl">{t("home.cta.title")}</h2>
+              <p className="mt-2 text-green-50/90">{t("home.cta.desc")}</p>
+            </div>
+            <Link href="/admin/register" className="relative">
+              <Button size="lg" className="h-12 gap-2 rounded-full bg-white px-7 text-base font-semibold text-slate-900 hover:bg-green-50">
+                {t("home.cta.button")}
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-16 bg-slate-50 border-t border-slate-200">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-            <div className="space-y-6">
-              <div className="flex items-center">
-                <div className="relative h-10 w-10 mr-3 overflow-hidden rounded-xl shadow-sm">
-                  <Image
-                    src="/icon.png"
-                    alt="HypStay Logo"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-                <span className="text-2xl font-bold tracking-tighter text-slate-900">HypStay</span>
-              </div>
-              <p className="text-slate-500 text-lg leading-relaxed">
-                {t("landing.footerDesc")}
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 mb-6 text-lg">{t("landing.footerProduct")}</h4>
-              <ul className="space-y-4 text-slate-500">
-                <li><Link href="#features" className="hover:text-blue-600 transition-colors font-medium">{t("landing.viewFeatures")}</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerPricing")}</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerMobile")}</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 mb-6 text-lg">{t("landing.footerSupport")}</h4>
-              <ul className="space-y-4 text-slate-500">
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerManual")}</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerHelp")}</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerContact")}</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 mb-6 text-lg">{t("landing.footerCompany")}</h4>
-              <ul className="space-y-4 text-slate-500">
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerAbout")}</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerTerms")}</Link></li>
-                <li><Link href="#" className="hover:text-blue-600 transition-colors font-medium">{t("landing.footerPrivacy")}</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="pt-10 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-6 text-slate-500 font-medium">
-            <p>© 2025 HypStay. {t("app.allRightsReserved") ?? "Tất cả quyền được bảo lưu."}</p>
-            <div className="flex gap-8">
-              <Link href="#" className="hover:text-blue-600 transition-colors">Facebook</Link>
-              <Link href="#" className="hover:text-blue-600 transition-colors">Zalo</Link>
-              <Link href="#" className="hover:text-blue-600 transition-colors">Youtube</Link>
-            </div>
+      <footer className="border-t border-slate-100">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-8 sm:px-6 md:flex-row">
+          <Link href="/" aria-label="HypStay">
+            <BrandLogo className="text-xl" />
+          </Link>
+          <nav className="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-slate-700 md:ml-12">
+            <Link href="#features" className="hover:text-green-700">{t("home.nav.features")}</Link>
+            {navLinks.map((l) => (
+              <Link key={l.href} href={l.href} className="hover:text-green-700">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="flex items-center gap-3 md:ml-auto">
+            <DonateDialog />
+            <a href="#" aria-label="Facebook" className="text-slate-900 transition-colors hover:text-green-700">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
+                <path d="M12 2C6.48 2 2 6.48 2 12c0 4.99 3.66 9.13 8.44 9.88v-6.99H7.9V12h2.54V9.8c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99C18.34 21.13 22 16.99 22 12c0-5.52-4.48-10-10-10z" />
+              </svg>
+            </a>
+            <a href="#" aria-label="YouTube" className="text-slate-900 transition-colors hover:text-green-700">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
+                <path d="M21.58 7.19a2.5 2.5 0 0 0-1.76-1.77C18.25 5 12 5 12 5s-6.25 0-7.82.42A2.5 2.5 0 0 0 2.42 7.2C2 8.76 2 12 2 12s0 3.24.42 4.81a2.5 2.5 0 0 0 1.76 1.77C5.75 19 12 19 12 19s6.25 0 7.82-.42a2.5 2.5 0 0 0 1.76-1.77C22 15.24 22 12 22 12s0-3.24-.42-4.81zM10 15V9l5.2 3L10 15z" />
+              </svg>
+            </a>
           </div>
         </div>
+        <p className="border-t border-slate-100 py-5 text-center text-xs text-slate-500">
+          © {new Date().getFullYear()} HypStay. {t("home.footer.rights")}
+        </p>
       </footer>
+    </div>
+  );
+}
+
+function ChoiceCard({
+  icon: Icon,
+  title,
+  desc,
+  cta,
+}: {
+  icon: typeof Home;
+  title: string;
+  desc: string;
+  cta: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm sm:flex-row">
+      <div className="flex h-32 w-32 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-50 to-green-100">
+        <Icon className="h-16 w-16 text-green-700" strokeWidth={1.5} />
+      </div>
+      <div className="w-full text-center sm:text-left">
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="mt-1 text-sm text-slate-500">{desc}</p>
+        <div className="mt-4">{cta}</div>
+      </div>
     </div>
   );
 }

@@ -227,3 +227,17 @@ export type CommunityPost = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type CommunityComment = {
+  id: string;
+  content: string;
+  postId: string;
+  authorId: string;
+  author?: {
+    fullName: string;
+    avatar?: string;
+  };
+  parentId: string | null;
+  createdAt: string;
+  replies: CommunityComment[];
+};

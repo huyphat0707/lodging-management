@@ -10,7 +10,7 @@ export function PropertySelector() {
     usePropertyContext();
   const { user } = useAuth();
   const { t } = useI18n();
-  if (user?.role !== "super_admin") {
+  if (user?.role !== "super_admin" && user?.role !== "admin") {
     return null;
   }
 

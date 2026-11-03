@@ -49,7 +49,7 @@ export function BookingTable() {
 
   const { data: bookingsResponse, isLoading, isError } = useQuery({
     queryKey: ["bookings", page, limit],
-    queryFn: () => api.getBookings({ page, limit } as any),
+    queryFn: () => api.getBookings({ page, limit }),
   });
 
   const bookings = bookingsResponse?.data || [];

@@ -41,9 +41,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
           setUser(normalizedUser);
         } catch (error) {
-          console.error("Failed to load user:", error);
-          localStorage.removeItem(AUTH_TOKEN_KEY);
-          localStorage.removeItem("auth_refresh_token");
+          // fetch throws TypeError when the API is unreachable; keep the session so the
+          // user isn't logged out just because the backend is down.
+          if (error instanceof TypeError) {
+            console.warn("Could not reach API to load user:", error.message);
+          } else {
+            console.error("Failed to load user:", error);
+            localStorage.removeItem(AUTH_TOKEN_KEY);
+            localStorage.removeItem("auth_refresh_token");
+          }
         }
       }
       setIsLoading(false);

@@ -18,7 +18,7 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (user && user.propertyType) {
-      if (user.role !== "super_admin") {
+      if (user.role !== "super_admin" && user.role !== "admin") {
         setSelectedPropertyType(user.propertyType as PropertyType);
       } else if (!selectedPropertyType) {
         setSelectedPropertyType(user.propertyType as PropertyType);

@@ -14,6 +14,7 @@ import {
   ClipboardList,
   CalendarDays,
   Globe,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/providers/LanguageProvider";
@@ -34,6 +35,7 @@ const allSidebarLinks = [
   { key: "nav.billing", href: "/admin/billing", icon: CreditCard, show: ["Boarding", "Hotel", "Homestay"] },
   { key: "nav.reports", href: "/admin/reports", icon: BarChart, show: ["Boarding", "Hotel", "Homestay"], roles: ["admin", "super_admin"] },
   { key: "nav.settings", href: "/admin/settings", icon: Settings, show: ["Boarding", "Hotel", "Homestay"], roles: ["admin", "super_admin"] },
+  { key: "nav.guide", href: "/admin/guide", icon: BookOpen, show: ["Boarding", "Hotel", "Homestay"] },
 ];
 
 import { DonateDialog } from "../shared/DonateDialog";

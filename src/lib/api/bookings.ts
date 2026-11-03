@@ -12,8 +12,17 @@ export interface CreateBookingDto {
 }
 
 export const bookingsApi = {
-  getBookings: async (propertyId?: string): Promise<{ data: Booking[]; total: number }> => {
-    const url = propertyId ? `/bookings?propertyId=${propertyId}` : "/bookings";
+  getBookings: async (params?: { page?: number; limit?: number; propertyId?: string; status?: string; search?: string }): Promise<{ data: Booking[]; total: number }> => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      if (params.page !== undefined) searchParams.append("page", String(params.page));
+      if (params.limit !== undefined) searchParams.append("limit", String(params.limit));
+      if (params.propertyId !== undefined) searchParams.append("propertyId", String(params.propertyId));
+      if (params.status !== undefined) searchParams.append("status", String(params.status));
+      if (params.search !== undefined) searchParams.append("search", String(params.search));
+    }
+    const queryStr = searchParams.toString();
+    const url = queryStr ? `/bookings?${queryStr}` : "/bookings";
     return api.get<{ data: Booking[]; total: number }>(url);
   },
 
